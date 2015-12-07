@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+source "$(dirname "$0")/config"
+
+wget --quiet "$ACME_CLIENT_URL" -O- | tar zx --no-anchor acmetool --strip-components 2 -C /usr/local/bin
+/usr/local/bin/acmetool quickstart --response-file="$(dirname "$0")/response.yaml"

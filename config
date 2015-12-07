@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+export ACME_CLIENT_URL="https://github.com/hlandau/acme/releases/download/v0.0.16/acmetool-v0.0.16-linux_amd64.tar.gz"
