@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
+
+PLUGIN_BASE_PATH="$PLUGIN_PATH"
+if [[ -n $DOKKU_API_VERSION ]]; then
+  PLUGIN_BASE_PATH="$PLUGIN_ENABLED_PATH"
+fi
+source "$PLUGIN_BASE_PATH/common/functions"
+source "$PLUGIN_BASE_PATH/nginx-vhosts/functions"
+source "$(dirname "$0")/config"
+
+if [[ $1 == $PLUGIN_COMMAND_PREFIX || $1 == $PLUGIN_COMMAND_PREFIX:* ]]; then
+  [[ -z $2 ]] && echo "Please specify an app to run the command on" && exit 1
+  verify_app_name "$2"
+  APP="$2"; APP_ROOT="$DOKKU_ROOT/$APP"
+fi
+
+case "$1" in
+  $PLUGIN_COMMAND_PREFIX:generate)
+    if (is_deployed "$APP"); then
+      if [[ ! -d $APP_ROOT/nginx.conf.d ]]; then
+        mkdir "$APP_ROOT/nginx.conf.d"
+      fi
+      cp "$(dirname "$0")/templates/letsencrypt.conf" "$APP_ROOT/nginx.conf.d"
+      restart_nginx
+      sudo acmetool want ${@:3}
+      mkdir -p "$APP_ROOT/tls"
+      ln -sf "/var/lib/acme/live/$3/fullchain" "$APP_ROOT/tls/server.crt"
+      ln -sf "/var/lib/acme/live/$3/privkey" "$APP_ROOT/tls/server.key"
+      nginx_build_config "$APP"
+    else
+      echo "Application's not deployed"
+    fi
+    ;;
+
+  *)
+    exit "$DOKKU_NOT_IMPLEMENTED_EXIT"
+    ;;
+esac
