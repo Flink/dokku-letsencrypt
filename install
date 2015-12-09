@@ -11,6 +11,7 @@ if [[ ! -f /usr/local/bin/acmetool ]]; then
   TMP_CRON=$(mktemp)
   sudo -u dokku crontab -l > "$TMP_CRON"
   sed -i "s,reconcile,--hooks=\"$DOKKU_ACME_HOOKS_PATH\" reconcile," "$TMP_CRON"
+  chmod 644 "$TMP_CRON"
   sudo -u dokku crontab "$TMP_CRON"
   rm "$TMP_CRON"
 fi
