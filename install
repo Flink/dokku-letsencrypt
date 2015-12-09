@@ -18,4 +18,5 @@ fi
 
 if [[ ! -f /etc/sudoers.d/dokku-acmetool ]]; then
   echo "%dokku ALL=(ALL) NOPASSWD:$DOKKU_ACME_HOOKS_PATH" > /etc/sudoers.d/dokku-acmetool
+  chmod 440 /etc/sudoers.d/dokku-acmetool
 fi
