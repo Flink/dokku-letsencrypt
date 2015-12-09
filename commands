@@ -16,20 +16,39 @@ if [[ $1 == $PLUGIN_COMMAND_PREFIX || $1 == $PLUGIN_COMMAND_PREFIX:* ]]; then
 fi
 
 case "$1" in
-  $PLUGIN_COMMAND_PREFIX:generate)
+  $PLUGIN_COMMAND_PREFIX:request)
     if (is_deployed "$APP"); then
+      FIRST_DOMAIN="$3"
+      [[ -z $FIRST_DOMAIN ]] && dokku_log_fail "Please provide at least one domain to request"
       if [[ ! -d $APP_ROOT/nginx.conf.d ]]; then
         mkdir "$APP_ROOT/nginx.conf.d"
       fi
       cp "$(dirname "$0")/templates/letsencrypt.conf" "$APP_ROOT/nginx.conf.d"
       restart_nginx
-      $ACME_CLIENT_CMD want ${@:3}
+      dokku_log_info1 "Requesting certificate for ${@:3}..."
+      # shellcheck disable=SC2068
+      $ACME_CLIENT_CMD want ${@:3} &> /dev/null
+      dokku_log_info1 "Installing certificate"
       mkdir -p "$APP_ROOT/tls"
-      ln -sf "$DOKKU_ACME_ROOT/live/$3/fullchain" "$APP_ROOT/tls/server.crt"
-      ln -sf "$DOKKU_ACME_ROOT/live/$3/privkey" "$APP_ROOT/tls/server.key"
+      ln -sf "$DOKKU_ACME_ROOT/live/$FIRST_DOMAIN/fullchain" "$APP_ROOT/tls/server.crt"
+      ln -sf "$DOKKU_ACME_ROOT/live/$FIRST_DOMAIN/privkey" "$APP_ROOT/tls/server.key"
+      rm -f "$APP_ROOT/nginx.conf.d/letsencrypt.conf"
       nginx_build_config "$APP"
+      dokku_log_verbose "done"
     else
       echo "Application's not deployed"
+    fi
+    ;;
+
+  help)
+    HELP=$(cat<<EOF
+    $PLUGIN_COMMAND_PREFIX:request <app> <domain> [domain [domain [...]]], Request one or more domain(s) for <app> from Let’s Encrypt
+EOF
+)
+    if [[ -n $DOKKU_API_VERSION ]]; then
+      echo "$HELP"
+    else
+      cat && echo "$HELP"
     fi
     ;;
 
