@@ -6,7 +6,7 @@ mkdir -p "$DOKKU_ACME_ROOT" "$DOKKU_ACME_HOOKS_PATH"
 chown dokku:dokku -R "$DOKKU_ACME_ROOT" "$DOKKU_ACME_HOOKS_PATH"
 
 if [[ ! -f /usr/local/bin/acmetool ]]; then
-  wget --quiet "$ACME_CLIENT_URL" -O- | tar zx --no-anchor acmetool --strip-components 2 -C /usr/local/bin
+  wget --quiet "$ACME_CLIENT_URL" -O- | tar zx -C /usr/local/bin --no-anchor acmetool --strip-components 2
   $ACME_CLIENT_CMD quickstart --response-file="$(dirname "$0")/response.yaml"
 fi
 
