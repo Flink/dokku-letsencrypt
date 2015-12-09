@@ -23,10 +23,10 @@ case "$1" in
       fi
       cp "$(dirname "$0")/templates/letsencrypt.conf" "$APP_ROOT/nginx.conf.d"
       restart_nginx
-      sudo acmetool want ${@:3}
+      $ACME_CLIENT_CMD want ${@:3}
       mkdir -p "$APP_ROOT/tls"
-      ln -sf "/var/lib/acme/live/$3/fullchain" "$APP_ROOT/tls/server.crt"
-      ln -sf "/var/lib/acme/live/$3/privkey" "$APP_ROOT/tls/server.key"
+      ln -sf "$DOKKU_ACME_ROOT/live/$3/fullchain" "$APP_ROOT/tls/server.crt"
+      ln -sf "$DOKKU_ACME_ROOT/live/$3/privkey" "$APP_ROOT/tls/server.key"
       nginx_build_config "$APP"
     else
       echo "Application's not deployed"

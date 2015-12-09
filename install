@@ -2,11 +2,14 @@
 set -eo pipefail; [[ $DOKKU_TRACE ]] && set -x
 source "$(dirname "$0")/config"
 
+mkdir -p "$DOKKU_ACME_ROOT" "$DOKKU_ACME_HOOKS_PATH"
+chown dokku:dokku -R "$DOKKU_ACME_ROOT" "$DOKKU_ACME_HOOKS_PATH"
+
 if [[ ! -f /usr/local/bin/acmetool ]]; then
   wget --quiet "$ACME_CLIENT_URL" -O- | tar zx --no-anchor acmetool --strip-components 2 -C /usr/local/bin
-  /usr/local/bin/acmetool quickstart --response-file="$(dirname "$0")/response.yaml"
+  $ACME_CLIENT_CMD quickstart --response-file="$(dirname "$0")/response.yaml"
 fi
 
 if [[ ! -f /etc/sudoers.d/dokku-acmetool ]]; then
-  echo "%dokku ALL=(ALL) NOPASSWD:/usr/local/bin/acmetool *" > /etc/sudoers.d/dokku-acmetool
+  echo "%dokku ALL=(ALL) NOPASSWD:$DOKKU_ACME_HOOKS_PATH" > /etc/sudoers.d/dokku-acmetool
 fi
