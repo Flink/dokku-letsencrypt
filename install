@@ -8,6 +8,11 @@ chown dokku:dokku -R "$DOKKU_ACME_ROOT" "$DOKKU_ACME_HOOKS_PATH"
 if [[ ! -f /usr/local/bin/acmetool ]]; then
   wget --quiet "$ACME_CLIENT_URL" -O- | tar zx -C /usr/local/bin --no-anchor acmetool --strip-components 2
   sudo -u dokku $ACME_CLIENT_CMD quickstart --response-file="$(dirname "$0")/response.yaml"
+  TMP_CRON=$(mktemp)
+  sudo -u dokku crontab -l > "$TMP_CRON"
+  sed -i "s,reconcile,--hooks=\"$DOKKU_ACME_HOOKS_PATH\" reconcile," "$TMP_CRON"
+  sudo -u dokku crontab "$TMP_CRON"
+  rm "$TMP_CRON"
 fi
 
 if [[ ! -f /etc/sudoers.d/dokku-acmetool ]]; then
