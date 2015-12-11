@@ -32,7 +32,6 @@ case "$1" in
       mkdir -p "$APP_ROOT/tls"
       ln -sf "$DOKKU_ACME_ROOT/live/$FIRST_DOMAIN/fullchain" "$APP_ROOT/tls/server.crt"
       ln -sf "$DOKKU_ACME_ROOT/live/$FIRST_DOMAIN/privkey" "$APP_ROOT/tls/server.key"
-      rm -f "$APP_ROOT/nginx.conf.d/letsencrypt.conf"
       nginx_build_config "$APP"
       dokku_log_verbose "done"
     else
