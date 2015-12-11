@@ -36,7 +36,7 @@ case "$1" in
       nginx_build_config "$APP"
       dokku_log_verbose "done"
     else
-      echo "Application's not deployed"
+      echo "Cannot request a certificate for a non-deployed app"
     fi
     ;;
 

@@ -2,7 +2,7 @@
 
 export DOKKU_ACME_ROOT="/var/lib/dokku/acme"
 export DOKKU_ACME_HOOKS_PATH="$DOKKU_ACME_ROOT/hooks"
-export ACME_CLIENT_VERSION="v0.0.18"
+export ACME_CLIENT_VERSION="v0.0.21"
 export ACME_CLIENT_URL="https://github.com/hlandau/acme/releases/download/$ACME_CLIENT_VERSION/acmetool-$ACME_CLIENT_VERSION-linux_amd64.tar.gz"
 export ACME_CLIENT_CMD="/usr/local/bin/acmetool --state $DOKKU_ACME_ROOT --hooks $DOKKU_ACME_HOOKS_PATH"
 export PLUGIN_COMMAND_PREFIX="letsencrypt"
